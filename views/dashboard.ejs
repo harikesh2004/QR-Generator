@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(45deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      margin: 10px 0;
+      width: 80%;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #2BFF88;
+      color: #000;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    button:hover {
+      background-color: #2BD2FF;
+      transform: scale(1.05);
+    }
+
+    .qr-code {
+      margin-top: 20px;
+    }
+
+    .qr-code img {
+      max-width: 150px;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s;
+    }
+
+    .qr-code img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome, <%= username %>!</h1>
+    <form action="/dashboard" method="post">
+      <label>Enter a word to generate its QR code:</label>
+      <input type="hidden" name="username" value="<%= username %>">
+      <input type="text" name="word" placeholder="Enter a word" required>
+      <button type="submit">Generate QR Code</button>
+    </form>
+    <% if (typeof word !== 'undefined' && typeof qrCodeUrl !== 'undefined') { %>
+      <div class="qr-code">
+        <h2>QR Code for "<%= word %>"</h2>
+        <img src="<%= qrCodeUrl %>" alt="QR Code for <%= word %>">
+        <br><br>
+        <button onclick="downloadQRCode('<%= qrCodeUrl %>')">Download</button>
+        <button onclick="copyQRCodeUrl('<%= qrCodeUrl %>')">Copy URL</button>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    function downloadQRCode(url) {
+      fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'qr-code.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(console.error);
+    }
+
+    function copyQRCodeUrl(url) {
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('QR Code URL copied to clipboard!');
+    }
+  </script>
+</body>
+</html>
